@@ -1,0 +1,29 @@
+html, body {
+    background-color: white;
+}
+
+:root { 
+    --cell-size : 30px; 
+    --mark-size : cal(var(--cell-size) * 0.9); 
+}
+.container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 3px;
+}
+
+.column {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 3px;
+}
+
+.row {
+    width: var(--cell-size);
+    height: var(--cell-size);
+    border-radius: 0%;
+}
+
