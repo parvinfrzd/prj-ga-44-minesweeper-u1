@@ -1,0 +1,31 @@
+html, body {
+    background-color: white;
+}
+
+:root { 
+    --cell-size : 30px; 
+    --gap-size : 3px;
+    --width-size :cal(var(--cell-size) + var(--gap-size)); 
+    --container-size : cal(var(--width-size)*10)
+}
+.grid {
+    width: var(--container-size);
+    display: grid;
+    justify-content: center;
+    align-content: center;
+    grid-template-columns: repeat(3, auto);
+    gap: 3px;
+}
+
+.cell {
+    width: var(--cell-size);
+    height: var(--cell-size);
+    border-radius: 0%;
+    background-color: black;
+    border: 1px solid grey;
+}
+
+.hidden {
+    background-color: chocolate;
+}
+
