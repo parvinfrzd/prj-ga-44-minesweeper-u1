@@ -5,6 +5,7 @@
 // check win or lose 
 //a. if a cell state is bee then you lose 
 //b. if a cell state is not bee then you go on 
+
 /*const cell = {
     DOM element, 
     x, 
@@ -12,16 +13,19 @@
     STATUS
 
 }*/
+const gridCount = 3;
+const bees = 3;
+
 
 window.onload = function () {
     const status = {
         HIDDEN: 'hidden',
         REVEALED: 'revealed',
     }
-    const gridCount = 3;
-    const bees = 3;
+
     const beeGrid = MakeGridAndBees(gridCount);
     MakeBees(beeGrid, bees);
+
 
     function MakeGridAndBees(size) {
         grid = []
@@ -67,23 +71,19 @@ window.onload = function () {
     //function to generate random x and y
     function generateRandom(beeCount) {
         let generatedNumbers = [];
-        for (let i = 0; i < beeCount; i++) {
+        while (generatedNumbers.length < beeCount) {
             const index = {
                 x: Math.floor(Math.random() * beeCount),
                 y: Math.floor(Math.random() * beeCount)
             }
-            //doesn't work!
-            if (!generatedNumbers.includes(index)) {
+            if (!generatedNumbers.some(number => checkeNumberMatch(number, index)))
                 generatedNumbers.push(index);
-            }
         }
-        console.log(generatedNumbers);
         return generatedNumbers;
     }
+
     //function to see if numbers match with generated numbers 
     function checkeNumberMatch(a, b) {
         return a.x === b.x && a.y === b.y;
     }
-
-
 }
