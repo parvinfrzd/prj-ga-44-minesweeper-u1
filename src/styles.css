@@ -4,26 +4,28 @@ html, body {
 
 :root { 
     --cell-size : 30px; 
-    --mark-size : cal(var(--cell-size) * 0.9); 
+    --gap-size : 3px;
+    --width-size :cal(var(--cell-size) + var(--gap-size)); 
+    --container-size : cal(var(--width-size)*10)
 }
-.container {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+.grid {
+    width: var(--container-size);
+    display: grid;
+    justify-content: center;
+    align-content: center;
+    grid-template-columns: repeat(3, auto);
     gap: 3px;
 }
 
-.column {
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    gap: 3px;
-}
-
-.row {
+.cell {
     width: var(--cell-size);
     height: var(--cell-size);
     border-radius: 0%;
+    background-color: black;
+    border: 1px solid grey;
+}
+
+.hidden {
+    background-color: chocolate;
 }
 
