@@ -61,7 +61,7 @@ body {
     display: grid;
     justify-content: center;
     align-content: center;
-    grid-template-columns: repeat(3, auto);
+    grid-template-columns: repeat(10, auto);
     gap: 3px;
 }
 
@@ -71,6 +71,11 @@ body {
     border-radius: 0%;
     background-color: grey;
     border: 2px solid rgb(26, 26, 26);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    text-align: center;
 }
 
 .cell:hover{

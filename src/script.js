@@ -11,8 +11,8 @@
     styleStatus
 
 }*/
-const gridCount = 3;
-const bees = 3;
+const gridCount = 10;
+const bees = 10;
 
 
 window.onload = function () {
@@ -24,48 +24,12 @@ window.onload = function () {
 
     const beeGrid = MakeGrid(gridCount);
     MakeBees(beeGrid, bees, gridCount);
+    flatGrid = beeGrid.flat();
+    flatGrid.forEach((cell) => {
+        console.log(FindNeighbourCells(beeGrid, cell, gridCount));
+        checkCellState(beeGrid, cell, gridCount);
+    })
 
-    beeGrid.forEach(column => column.forEach(function (cell) {
-        console.log(FindNeighborCells(cell, gridCount));
-    }))
-
-    console.log(MakeNeighborArray(beeGrid[0][0], gridCount));
-
-
-    function MakeNeighborArray(cell, size) {
-        neighbours = [
-            { x: cell.x + 1, y: cell.y + 1 },
-            { x: cell.x + 1, y: cell.y - 1 },
-            { x: cell.x + 1, y: cell.y },
-            { x: cell.x - 1, y: cell.y - 1 },
-            { x: cell.x - 1, y: cell.y + 1 },
-            { x: cell.x - 1, y: cell.y },
-            { x: cell.x, y: cell.y + 1 },
-            { x: cell.x, y: cell.y - 1 }
-        ];
-        //filter the ones that are not in the grid. 
-        let count = neighbours.length;
-        while (count--)
-            if (neighbours[count].x < 0 || neighbours[count].y < 0 || neighbours[count].x > size - 1 || neighbours[count].y > size - 1) {
-                const index = neighbours.indexOf(neighbours[count]);
-                neighbours.splice(index, 1);
-            }
-        return neighbours;
-    }
-
-    function FindNeighborCells(cell, size) {
-        neighbourCells = [];
-        neighbours = MakeNeighborArray(cell, size);
-        neighbours.forEach(function (neighbour) {
-            if (checkeNumberMatch(neighbour, cell)) {
-                neighbourCells.push(cell);
-            } else {
-                console.log('doesnt match', neighbour)
-                console.log('the cell is:', cell)
-            }
-        });
-        return neighbourCells
-    }
 
     function ClickToGo() {
         //click to reveal 
@@ -102,7 +66,7 @@ window.onload = function () {
         randomArr = generateRandom(beeCount, size)
         grid.forEach(column => column.forEach(function (cell) {
             randomArr.forEach(function (random) {
-                if (checkeNumberMatch(cell, random)) {
+                if (checkNumberMatch(cell, random)) {
                     cell.isBee = true;
                     cell.state = styleStatus.BOMB;
                     cell.el.setAttribute('class', `cell ${cell.state}`);
@@ -120,14 +84,56 @@ window.onload = function () {
                 x: Math.floor(Math.random() * size),
                 y: Math.floor(Math.random() * size)
             }
-            if (!generatedNumbers.some(number => checkeNumberMatch(number, index)))
+            if (!generatedNumbers.some(number => checkNumberMatch(number, index)))
                 generatedNumbers.push(index);
         }
         return generatedNumbers;
     }
 
+    function FindNeighbourCells(grid, cell, size) {
+        neighbours = [
+            { x: cell.x + 1, y: cell.y + 1 },
+            { x: cell.x + 1, y: cell.y - 1 },
+            { x: cell.x + 1, y: cell.y },
+            { x: cell.x - 1, y: cell.y - 1 },
+            { x: cell.x - 1, y: cell.y + 1 },
+            { x: cell.x - 1, y: cell.y },
+            { x: cell.x, y: cell.y + 1 },
+            { x: cell.x, y: cell.y - 1 }
+        ];
+        nbrCells = new Array();
+        //filter the ones that are not in the grid. 
+        let count = neighbours.length;
+        while (count--) {
+            if (neighbours[count].x < 0 || neighbours[count].y < 0 || neighbours[count].x > size - 1 || neighbours[count].y > size - 1) {
+                const index = neighbours.indexOf(neighbours[count]);
+                neighbours.splice(index, 1);
+            }
+        }
+
+        neighbours.forEach((nbr) => {
+            nbrCell = grid[nbr.x][nbr.y];
+            nbrCells.push(nbrCell);
+        });
+
+        return nbrCells;
+    }
+
+    function checkCellState(grid, cell, count) {
+        neighbours = FindNeighbourCells(grid, cell, count);
+        let bombCount = 0;
+        neighbours.forEach((nbr) => {
+            if (nbr.state === 'bomb') {
+                bombCount += 1;
+            }
+        });
+
+        if (cell.state !== 'bomb')
+            cell.el.innerHTML = bombCount.toString();
+    }
+
     //function to see if numbers match with generated numbers 
-    function checkeNumberMatch(a, b) {
+    function checkNumberMatch(a, b) {
         return a.x === b.x && a.y === b.y;
     }
 }
