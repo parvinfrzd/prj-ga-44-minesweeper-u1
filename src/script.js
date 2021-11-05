@@ -1,4 +1,4 @@
-// click on cell to reveal the styleStatus of cell
+// click on cell to reveal the style_status of cell
 
 // check win or lose 
 //a. if a cell state is bee then you lose 
@@ -8,34 +8,47 @@
     DOM element, 
     x, 
     y, 
-    styleStatus
+    style_status
 
 }*/
-const gridCount = 10;
-const bees = 10;
-
+const GRID_COUNT = 10;
+const BEE_COUNT = 50;
+const style_status = {
+    EMPTY: 'empty',
+    NEIGHBORED: 'neighbored',
+    BOMB: 'bomb'
+}
 
 window.onload = function () {
-    const styleStatus = {
-        EMPTY: 'empty',
-        NEIGHBORED: 'neighbored',
-        BOMB: 'bomb'
+
+    initGame();
+
+    function initGame() {
+        const beeGrid = makeGrid(GRID_COUNT);
+        mapBees(beeGrid, BEE_COUNT, GRID_COUNT);
+        flatGrid = beeGrid.flat();
+        flatGrid.forEach((cell) => {
+            bombCount = checkCellState(beeGrid, cell, GRID_COUNT);
+            cell.el.addEventListener('click', function () {
+                cell.el.classList.add(cell.state);
+                cell.el.querySelector('.bomb-count').style.display = "block";
+                revealEmptyCells(beeGrid, cell, GRID_COUNT)
+                if (cell.state == style_status.BOMB) document.querySelector('.game-state').childNodes[0].textContent = 'GAME OVER!'
+            });
+        })
+    }
+    function revealEmptyCells(grid, cell, size) {
+        if (cell.isCellEmpty) {
+            neighbours = findNeighbourCells(grid, cell, size);
+            neighbours.forEach((nbr) => {
+                if (nbr.isCellEmpty) {
+                    nbr.el.classList.add(nbr.state);
+                }
+            });
+        }
     }
 
-    const beeGrid = MakeGrid(gridCount);
-    MakeBees(beeGrid, bees, gridCount);
-    flatGrid = beeGrid.flat();
-    flatGrid.forEach((cell) => {
-        console.log(FindNeighbourCells(beeGrid, cell, gridCount));
-        checkCellState(beeGrid, cell, gridCount);
-    })
-
-
-    function ClickToGo() {
-        //click to reveal 
-    }
-
-    function MakeGrid(size) {
+    function makeGrid(size) {
         grid = new Array()
         gridEl = document.querySelector('.grid');
         for (let i = 0; i < size; i++) {
@@ -45,6 +58,9 @@ window.onload = function () {
                 //make div and display
                 el = document.createElement('div');
                 el.setAttribute('class', 'cell');
+                span = document.createElement('span');
+                span.setAttribute('class', 'bomb-count');
+                el.appendChild(span);
                 gridEl.appendChild(el);
 
                 //construct cell 
@@ -53,7 +69,8 @@ window.onload = function () {
                     x: i,
                     y: j,
                     isBee: false,
-                    state: styleStatus.HIDDEN
+                    state: style_status.HIDDEN,
+                    isCellEmpty: false
                 }
                 column.push(cell);
             }
@@ -62,14 +79,13 @@ window.onload = function () {
         return grid;
     };
 
-    function MakeBees(grid, beeCount, size) {
+    function mapBees(grid, beeCount, size) {
         randomArr = generateRandom(beeCount, size)
         grid.forEach(column => column.forEach(function (cell) {
             randomArr.forEach(function (random) {
                 if (checkNumberMatch(cell, random)) {
                     cell.isBee = true;
-                    cell.state = styleStatus.BOMB;
-                    cell.el.setAttribute('class', `cell ${cell.state}`);
+                    cell.state = style_status.BOMB;
                 }
             });
         }));
@@ -90,7 +106,7 @@ window.onload = function () {
         return generatedNumbers;
     }
 
-    function FindNeighbourCells(grid, cell, size) {
+    function findNeighbourCells(grid, cell, size) {
         neighbours = [
             { x: cell.x + 1, y: cell.y + 1 },
             { x: cell.x + 1, y: cell.y - 1 },
@@ -120,16 +136,25 @@ window.onload = function () {
     }
 
     function checkCellState(grid, cell, count) {
-        neighbours = FindNeighbourCells(grid, cell, count);
+        neighbours = findNeighbourCells(grid, cell, count);
         let bombCount = 0;
         neighbours.forEach((nbr) => {
             if (nbr.state === 'bomb') {
                 bombCount += 1;
             }
         });
-
-        if (cell.state !== 'bomb')
-            cell.el.innerHTML = bombCount.toString();
+        if (cell.state !== 'bomb') {
+            if (bombCount > 0) {
+                cell.state = style_status.NEIGHBORED;
+                span = cell.el.childNodes[0];
+                span.textContent = bombCount.toString();
+            }
+            else if (bombCount === 0) {
+                cell.state = style_status.EMPTY;
+                cell.isCellEmpty = true;
+            }
+        }
+        return bombCount;
     }
 
     //function to see if numbers match with generated numbers 
