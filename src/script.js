@@ -30,7 +30,6 @@ window.onload = function () {
         document.querySelector('.game-state-text').textContent = GAME_OVER_STATE;
         document.querySelector('.game-state').style.display = 'flex';
         document.querySelector('.image').style.backgroundImage = "url('src/img/dizzy.png')";
-        // document.querySelector('.bee').style.display = 'inline-block';
         flatGrid.forEach((cell) => {
             cell.el.classList.add(cell.state);
             cell.el.querySelector('.bomb-count').style.display = 'flex';
