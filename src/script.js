@@ -12,7 +12,10 @@
 
 }*/
 const GRID_COUNT = 10;
-const BEE_COUNT = 50;
+const BEE_COUNT = 20;
+const GAME_OVER_STATE = "YOU GOT BEE STING!! TAP TO PLAY AGAIN";
+let IS_GAME_OVER = false;
+let IS_GAME_WON = false;
 const style_status = {
     EMPTY: 'empty',
     NEIGHBORED: 'neighbored',
@@ -21,30 +24,55 @@ const style_status = {
 
 window.onload = function () {
 
-    initGame();
+    startGame();
 
-    function initGame() {
+    function gameOver(flatGrid) {
+        document.querySelector('.game-state-text').textContent = GAME_OVER_STATE;
+        document.querySelector('.game-state').style.display = 'flex';
+        document.querySelector('.image').style.backgroundImage = "url('src/img/dizzy.png')";
+        // document.querySelector('.bee').style.display = 'inline-block';
+        flatGrid.forEach((cell) => {
+            cell.el.classList.add(cell.state);
+            cell.el.querySelector('.bomb-count').style.display = 'flex';
+            if (cell.state === style_status.BOMB) {
+                cell.el.querySelector('.bee').style.display = 'inline-block';
+            }
+            //remove all eventlisteners on cells
+            cell.el.replaceWith(cell.el.cloneNode(true));
+        });
+    }
+    function startGame() {
         const beeGrid = makeGrid(GRID_COUNT);
         mapBees(beeGrid, BEE_COUNT, GRID_COUNT);
         flatGrid = beeGrid.flat();
         flatGrid.forEach((cell) => {
+            changeEmoji(cell);
             bombCount = checkCellState(beeGrid, cell, GRID_COUNT);
-            cell.el.addEventListener('click', function () {
-                cell.el.classList.add(cell.state);
-                cell.el.querySelector('.bomb-count').style.display = "block";
-                revealEmptyCells(beeGrid, cell, GRID_COUNT)
-                if (cell.state == style_status.BOMB) document.querySelector('.game-state').childNodes[0].textContent = 'GAME OVER!'
-            });
+            cell.el.addEventListener('click', function () { gameLogic(cell, beeGrid) });
         })
     }
+    function gameLogic(cell, grid) {
+        cell.el.classList.add(cell.state);
+        cell.el.querySelector('.bomb-count').style.display = "flex";
+        revealEmptyCells(grid, cell, GRID_COUNT)
+        if (cell.state == style_status.BOMB) {
+            gameOver(flatGrid);
+        }
+    }
     function revealEmptyCells(grid, cell, size) {
-        if (cell.isCellEmpty) {
+        while (cell.isCellEmpty) {
+            console.log('reveal empty cells while loop')
+            // cell.el.classList.add(cell.state);
             neighbours = findNeighbourCells(grid, cell, size);
             neighbours.forEach((nbr) => {
+                console.log('looping neighbours')
                 if (nbr.isCellEmpty) {
                     nbr.el.classList.add(nbr.state);
+                    console.log('neighbours if met')
+
                 }
             });
+            cell.isCellEmpty = false;
         }
     }
 
@@ -86,6 +114,9 @@ window.onload = function () {
                 if (checkNumberMatch(cell, random)) {
                     cell.isBee = true;
                     cell.state = style_status.BOMB;
+                    span = document.createElement('span');
+                    span.setAttribute('class', 'bee');
+                    cell.el.appendChild(span);
                 }
             });
         }));
@@ -146,11 +177,14 @@ window.onload = function () {
         if (cell.state !== 'bomb') {
             if (bombCount > 0) {
                 cell.state = style_status.NEIGHBORED;
+                // cell.el.classList.add(cell.state);
                 span = cell.el.childNodes[0];
                 span.textContent = bombCount.toString();
             }
             else if (bombCount === 0) {
                 cell.state = style_status.EMPTY;
+                // cell.el.classList.add(cell.state);
+
                 cell.isCellEmpty = true;
             }
         }
@@ -160,5 +194,19 @@ window.onload = function () {
     //function to see if numbers match with generated numbers 
     function checkNumberMatch(a, b) {
         return a.x === b.x && a.y === b.y;
+    }
+
+    function changeEmoji(cell) {
+        let emoji = document.querySelector('.image');
+        cell.el.addEventListener('mouseenter', function () {
+            emoji.style.backgroundImage = "url('src/img/worried.png')"
+        });
+        cell.el.addEventListener('mouseout', function () {
+            emoji.style.backgroundImage = "url('src/img/smiling.png')"
+        });
+        if (IS_GAME_WON)
+            emoji.style.backgroundImage = "url('src/img/partying.png')";
+
+
     }
 }

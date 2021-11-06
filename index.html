@@ -10,22 +10,21 @@
     <title>Beesweeper</title>
 </head>
 <body>
+    <div class="bg"></div>
     <div class="game-state">
-        <span></span>
+        <div class="game-state-text">YOU GOT BEE STING! TAP TO PLAY AGAIN</div>
+        <div class="replay">
+            <span id="replay-image"></span>
+        </div>
+
     </div>
     <div class="container">
         <div class="header">
-            <h1>BeeSweeper!</h1>
+            <h1 class="title">BeeSweeper!</h1>
             <div class="sub-header">
-                <div class="wrapper">
+                    <span class="menu"></span>
                     <span class="image"></span>
-                </div>
-                <div class="wrapper">
-                    <span class="bomb-count"></span>
-                </div>
-                <div class="wrapper">
-                    <span class="timer"></span>
-                </div>   
+                    <span class="bee-count">10</span>
             </div>
         </div>
         <div class="grid"></div>
