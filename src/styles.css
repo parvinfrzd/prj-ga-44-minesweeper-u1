@@ -11,9 +11,9 @@ html {
     display: table;
     margin: auto;
     background-image:url('img/dw24-tiger-05-sunflower.jpeg');
-    /* -webkit-background-size: cover;
+    -webkit-background-size: cover;
     -moz-background-size: cover;
-    -o-background-size: cover; */
+    -o-background-size: cover;
     background-size:cover;
     background-position: 0%;
 }

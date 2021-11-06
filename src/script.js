@@ -16,6 +16,7 @@ const BEE_COUNT = 20;
 const GAME_OVER_STATE = "YOU GOT BEE STING!! TAP TO PLAY AGAIN";
 let IS_GAME_OVER = false;
 let IS_GAME_WON = false;
+let START_GAME = true;
 const style_status = {
     EMPTY: 'empty',
     NEIGHBORED: 'neighbored',
@@ -26,7 +27,41 @@ window.onload = function () {
 
     startGame();
 
+
+    function init() {
+        //make grid empty
+        let grid = document.querySelector('.grid');
+        if (grid.hasChildNodes) {
+            grid.innerHTML = '';
+        }
+        document.querySelector('.game-state').style.display = 'none';
+    }
+
+    function startGame() {
+        init();
+        if (START_GAME) {
+            const beeGrid = makeGrid(GRID_COUNT);
+            mapBees(beeGrid, BEE_COUNT, GRID_COUNT);
+            flatGrid = beeGrid.flat();
+            flatGrid.forEach((cell) => {
+                changeEmoji(cell);
+                bombCount = checkCellState(beeGrid, cell, GRID_COUNT);
+                cell.el.addEventListener('click', function () { gameLogic(cell, beeGrid) });
+            })
+        }
+    }
+
+    function gameLogic(cell, grid) {
+        cell.el.classList.add(cell.state);
+        cell.el.querySelector('.bomb-count').style.display = "flex";
+        revealEmptyCells(grid, cell, GRID_COUNT)
+        if (cell.state == style_status.BOMB) {
+            gameOver(flatGrid);
+        }
+    }
+
     function gameOver(flatGrid) {
+        START_GAME = false;
         document.querySelector('.game-state-text').textContent = GAME_OVER_STATE;
         document.querySelector('.game-state').style.display = 'flex';
         document.querySelector('.image').style.backgroundImage = "url('src/img/dizzy.png')";
@@ -39,25 +74,9 @@ window.onload = function () {
             //remove all eventlisteners on cells
             cell.el.replaceWith(cell.el.cloneNode(true));
         });
+        document.querySelector('.replay').addEventListener('click', function () { START_GAME = true; startGame(); });
     }
-    function startGame() {
-        const beeGrid = makeGrid(GRID_COUNT);
-        mapBees(beeGrid, BEE_COUNT, GRID_COUNT);
-        flatGrid = beeGrid.flat();
-        flatGrid.forEach((cell) => {
-            changeEmoji(cell);
-            bombCount = checkCellState(beeGrid, cell, GRID_COUNT);
-            cell.el.addEventListener('click', function () { gameLogic(cell, beeGrid) });
-        })
-    }
-    function gameLogic(cell, grid) {
-        cell.el.classList.add(cell.state);
-        cell.el.querySelector('.bomb-count').style.display = "flex";
-        revealEmptyCells(grid, cell, GRID_COUNT)
-        if (cell.state == style_status.BOMB) {
-            gameOver(flatGrid);
-        }
-    }
+
     function revealEmptyCells(grid, cell, size) {
         while (cell.isCellEmpty) {
             console.log('reveal empty cells while loop')
