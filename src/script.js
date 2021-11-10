@@ -1,10 +1,13 @@
 let GRID_COUNT = 10;
 let BEE_COUNT = 10;
 const GAME_OVER_STATE = "YOU GOT BEE STING!! TAP TO PLAY AGAIN";
+const GAME_WIN_STATE = "YOU WON! WANT TO CHALLENG YOURSELF WITH A LARGER GRID?";
 let IS_GAME_OVER = false;
 let IS_GAME_WON = false;
 let START_GAME = true;
 let PIN_COUNT;
+let REVEALED_CELLS = 0;
+let PINNED_CELLS = 0;
 const style_status = {
     EMPTY: 'empty',
     NEIGHBORED: 'neighbored',
@@ -13,7 +16,8 @@ const style_status = {
 }
 
 window.onload = function () {
-
+    let emoji = document.querySelector('.image');
+    let replayButton = document.querySelector('.replay');
     startGame();
     settingHandler();
 
@@ -25,6 +29,8 @@ window.onload = function () {
             grid.innerHTML = '';
         }
         document.querySelector('.game-state').style.display = 'none';
+        document.querySelector('.game-win').style.display = 'none';
+
 
     }
 
@@ -43,7 +49,8 @@ window.onload = function () {
                     e.preventDefault();
                     rightClickCell(cell);
                 }, false);
-            })
+            });
+
         }
     }
 
@@ -51,48 +58,56 @@ window.onload = function () {
         if (cell.state === style_status.BOMB) {
             gameOver(flatGrid);
         }
-        else {
+        else if (cell.state !== style_status.REVEALED) {
             //reveal cell 
             revealCell(cell);
+            checkWinState();
             //get neighbours 
-            console.log(cell)
-            if (cell.state === style_status.EMPTY) {
-                neighbours = findNeighbourCells(grid, cell, GRID_COUNT);
-                // loop through neibours 
-                neighbours.forEach((nbr) => {
-                    //if neighoburs are not bomb 
-                    if (nbr.state !== style_status.BOMB) {
-                        revealCell(nbr);
-                    }
-                    //reveal the neighbour
-                });
-            }
+            // if (cell.state === style_status.EMPTY) {
+            //     neighbours = findNeighbourCells(grid, cell, GRID_COUNT);
+            //     // loop through neibours 
+            //     neighbours.forEach((nbr) => {
+            //         //if neighoburs are not bomb 
+            //         if (nbr.state !== style_status.BOMB) {
+            //             revealCell(nbr);
+            //         }
+            //         //reveal the neighbour
+            //     });
+            // }
             cell.state = style_status.REVEALED;
         }
+
     }
 
     function rightClickCell(cell) {
-        console.log(PIN_COUNT)
-        if (PIN_COUNT > 0)
+        if (PIN_COUNT > 0) {
             if (cell.state !== style_status.REVEALED && cell.isPinned == false) {
-                console.log('pinned');
                 cell.el.classList.add('pinned');
                 cell.isPinned = true;
                 PIN_COUNT -= 1;
+                PINNED_CELLS += 1;
+                console.log('pinned cells', PINNED_CELLS);
+
             }
+        }
+        else {
+            checkWinState();
+        }
     }
 
     function revealCell(cell) {
         cell.el.classList.add(cell.state);
         cell.el.querySelector('.bomb-count').style.display = "flex";
-        // cell.state = style_status.REVEALED;
+        REVEALED_CELLS += 1;
     }
+
     function gameOver(flatGrid) {
         START_GAME = false;
         document.querySelector('.game-state-text').textContent = GAME_OVER_STATE;
         document.querySelector('.game-state').style.display = 'flex';
-        document.querySelector('.image').style.backgroundImage = "url('src/img/dizzy.png')";
+        emoji.style.backgroundImage = "url('src/img/dizzy.png')";
         flatGrid.forEach((cell) => {
+            //reveal all cells 
             cell.el.classList.add(cell.state);
             cell.el.querySelector('.bomb-count').style.display = 'flex';
             if (cell.state === style_status.BOMB) {
@@ -105,9 +120,14 @@ window.onload = function () {
     }
 
     function checkWinState() {
-        //if the sum of pinned cells and revealed cells are the grid size 
-        //then if the pinned cells are bombs > then win 
-        //otherwise lose 
+        if (PINNED_CELLS + REVEALED_CELLS >= GRID_COUNT * GRID_COUNT) {
+            START_GAME = false;
+            document.querySelector('.game-win-text').textContent = GAME_WIN_STATE;
+            document.querySelector('.game-win').style.display = 'flex';
+            emoji.style.backgroundImage = "url('src/img/partying.png')";
+            console.log(emoji)
+            document.querySelector('.game-win').querySelector('.replay').addEventListener('click', function () { START_GAME = true; startGame(); });
+        }
     }
 
     //first step: make a grid of cells 
@@ -228,15 +248,12 @@ window.onload = function () {
     }
 
     function changeEmoji(cell) {
-        let emoji = document.querySelector('.image');
         cell.el.addEventListener('mouseenter', function () {
             emoji.style.backgroundImage = "url('src/img/worried.png')"
         });
         cell.el.addEventListener('mouseout', function () {
             emoji.style.backgroundImage = "url('src/img/smiling.png')"
         });
-        if (IS_GAME_WON)
-            emoji.style.backgroundImage = "url('src/img/partying.png')";
     }
 
     function settingHandler() {
