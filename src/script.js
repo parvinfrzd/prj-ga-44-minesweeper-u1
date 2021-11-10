@@ -31,6 +31,8 @@ window.onload = function () {
         document.querySelector('.game-state').style.display = 'none';
         document.querySelector('.game-win').style.display = 'none';
 
+        REVEALED_CELLS = 0;
+        PINNED_CELLS = 0;
 
     }
 
