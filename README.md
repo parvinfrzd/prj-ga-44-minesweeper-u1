@@ -14,6 +14,8 @@ Well that's easy! if you reveal a square with bee, you lose! And if  you manage 
 ![alt text](https://github.com/parvinfrzd/prj-ga-44-minesweeper-u1/blob/main/src/img/screenshots/1st%20step.png?raw=true)
 ![alt text](https://github.com/parvinfrzd/prj-ga-44-minesweeper-u1/blob/main/src/img/screenshots/2nd%20step.png?raw=true)
 ![alt text](https://github.com/parvinfrzd/prj-ga-44-minesweeper-u1/blob/main/src/img/screenshots/gameover.png?raw=true)
+![alt text](https://github.com/parvinfrzd/prj-ga-44-minesweeper-u1/blob/main/src/img/screenshots/win.png?raw=true)
+
 ## Technolgies: 
 
 - HTML 
