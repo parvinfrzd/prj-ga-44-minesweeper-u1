@@ -14,7 +14,7 @@ const style_status = {
     BOMB: 'bomb',
     REVEALED: 'revealed'
 }
-
+//check window on load
 window.onload = function () {
     let emoji = document.querySelector('.image');
     let replayButton = document.querySelector('.replay');
