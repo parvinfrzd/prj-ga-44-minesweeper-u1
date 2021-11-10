@@ -10,7 +10,7 @@ html, body {
 html {
     display: table;
     margin: auto;
-    background-image:url('img/dw24-tiger-05-sunflower.jpeg');
+    background-image:url('img/bg01.png');
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
