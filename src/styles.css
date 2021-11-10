@@ -125,6 +125,14 @@ body {
     background-color: rgb(245, 112, 55);
 }
 
+.pinned {
+    display: flex;
+    background:url('./img/pushpin.png');
+    width: var(--cell-size);
+    height: var(--cell-size);
+    background-size: var(--cell-size);
+}
+
 .empty{
     background-color: rgb(252, 239, 217);
 
@@ -153,15 +161,15 @@ body {
     align-content:center;
     gap: 30px;
     position: absolute;
-    /* background-image: url('img/checker.jpeg'); */
-    background-color: rgba(154, 98, 1, 0.584);
-    width: 100%;
-    height: 100%;
+    background-color:  rgb(250, 208, 100, 0.58);;
+    width: 600px;
+    height: 80%;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
     padding: 10px;
     z-index: 100;
+    border-radius: 60px ;
 }
 
 .game-state-text {
@@ -170,8 +178,7 @@ body {
     justify-content: center;
     align-content: center;
     font-size: 30px;
-    font-weight: 900;
-
+    font-weight: 800;
 }
 
 .replay{
@@ -205,12 +212,65 @@ body {
     background-size: 60px;
 }
 
-.pin{
-    display: inline;
-    width: 60px;
-    height: 60px;
-    background:url('./img/pushpin.png');
-    background-repeat: no-repeat;
-    background-size: 60px;
+.setting {
+    display: none;
+    flex-direction: column;
+    justify-content: center ;
+    align-content:center;
+    gap: 20px;
+    position: absolute;
+    background-color: rgb(250, 208, 100);
+    width: 600px;
+    height: 80%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px;
+    z-index: 100;
+    border-radius: 60px;
 }
+
+.setting-text {
+    display: inline-block;
+    text-align: center;
+    justify-content: center;
+    align-content: center;
+    font-size: 50px;
+    font-weight: 800;
+    margin-bottom: 60px;
+}
+
+.select-size, .select-bees{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; 
+}
+
+#bees, #size{
+    height: 50px;
+    width: 100px;
+    text-align: center;
+    font-size: 30px;
+    font-weight: 100;
+    font-family: "Gill Sans", sans-serif;
+    border-radius: 6px;
+    border: 4px solid  rgb(75, 97, 30);
+}
+
+.bee-image{
+    display: inline-block;
+    justify-content: center;
+    align-content: center;
+    width: 100px;
+    height: 100px;
+    margin-left: auto;
+    margin-right: auto;
+    background-image: url('img/honeybee.png');
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: 100px;
+}
+
 

@@ -10,13 +10,22 @@
     <title>Beesweeper</title>
 </head>
 <body>
-    <div class="bg"></div>
     <div class="game-state">
         <div class="game-state-text"></div>
-        <div class="replay">
-            <span id="replay-image"></span>
+        <div class="replay"></div>
+    </div>
+    <div class="setting">
+        <span class="setting-text">GAME SETTING</span>
+        <span class="bee-image"></span>
+        <div class="select-size">
+            <span class="game-state-text">CHOOSE THE GRID SIZE</span>
+            <input type="text" id="size" name="grid-size" value="10">
         </div>
-
+        <div class="select-bees">
+            <span class="game-state-text">HOW MANY BEES DO YOU WANT TO FIND?</span>
+            <input type="text" id="bees" name="bee-size" value="10">
+        </div>
+        <div class="replay"></div>
     </div>
     <div class="container">
         <div class="header">
