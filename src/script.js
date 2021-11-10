@@ -1,5 +1,5 @@
 let GRID_COUNT = 10;
-let BEE_COUNT = 20;
+let BEE_COUNT = 10;
 const GAME_OVER_STATE = "YOU GOT BEE STING!! TAP TO PLAY AGAIN";
 let IS_GAME_OVER = false;
 let IS_GAME_WON = false;
@@ -250,7 +250,5 @@ window.onload = function () {
             startGame();
             document.querySelector('.setting').style.display = 'none';
         });
-
-
     }
 }
