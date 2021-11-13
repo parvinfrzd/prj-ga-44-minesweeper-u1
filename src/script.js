@@ -1,5 +1,5 @@
-let GRID_COUNT = 10;
-let BEE_COUNT = 10;
+let GRID_COUNT = 5;
+let BEE_COUNT = 2;
 const GAME_OVER_STATE = "YOU GOT BEE STING!! TAP TO PLAY AGAIN";
 const GAME_WIN_STATE = "YOU WON! WANT TO CHALLENGE YOURSELF WITH A LARGER GRID?";
 let IS_GAME_OVER = false;
@@ -9,11 +9,15 @@ let PIN_COUNT;
 let REVEALED_CELLS = 0;
 let PINNED_CELLS = 0;
 const style_status = {
+    PINNED: 'pinned',
     EMPTY: 'empty',
     NEIGHBORED: 'neighbored',
     BOMB: 'bomb',
-    REVEALED: 'revealed'
+    HIDDEN: 'hidden'
 }
+
+
+
 //check window on load
 window.onload = function () {
     let emoji = document.querySelector('.image');
@@ -39,101 +43,95 @@ window.onload = function () {
     function startGame() {
         init();
         PIN_COUNT = BEE_COUNT;
-        if (START_GAME) {
-            const beeGrid = makeGrid(GRID_COUNT);
-            mapBees(beeGrid, BEE_COUNT, GRID_COUNT);
-            flatGrid = beeGrid.flat();
-            flatGrid.forEach((cell) => {
-                changeEmoji(cell);
-                bombCount = checkCellState(beeGrid, cell, GRID_COUNT);
-                cell.el.addEventListener('click', function () { leftClickCell(cell, beeGrid) });
-                cell.el.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    rightClickCell(cell);
-                }, false);
-            });
-
-        }
+        // if (START_GAME) {
+        const beeGrid = makeGrid(GRID_COUNT, BEE_COUNT);
+        beeGrid.forEach(column => column.forEach(function (cell) {
+            changeEmoji(cell);
+            checkCellState(beeGrid, cell, GRID_COUNT);
+            cell.el.addEventListener('click', function () { revealCell(beeGrid, cell) });
+            cell.el.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                pinCell(beeGrid, cell);
+            }, false);
+        }));
     }
 
-    function leftClickCell(cell, grid) {
-        if (cell.state === style_status.BOMB) {
-            gameOver(flatGrid);
-        }
-        else if (cell.state !== style_status.REVEALED) {
-            //reveal cell 
-            revealCell(cell);
-            checkWinState();
-            //get neighbours 
-            // if (cell.state === style_status.EMPTY) {
-            //     neighbours = findNeighbourCells(grid, cell, GRID_COUNT);
-            //     // loop through neibours 
-            //     neighbours.forEach((nbr) => {
-            //         //if neighoburs are not bomb 
-            //         if (nbr.state !== style_status.BOMB) {
-            //             revealCell(nbr);
-            //         }
-            //         //reveal the neighbour
-            //     });
-            // }
-            cell.state = style_status.REVEALED;
-        }
 
-    }
-
-    function rightClickCell(cell) {
+    function pinCell(grid, cell) {
         if (PIN_COUNT > 0) {
-            if (cell.state !== style_status.REVEALED && cell.isPinned == false) {
-                cell.el.classList.add('pinned');
+            if (!cell.isPinned) {
                 cell.isPinned = true;
-                PIN_COUNT -= 1;
-                PINNED_CELLS += 1;
-                console.log('pinned cells', PINNED_CELLS);
-
+                cell.state = style_status.NEIGHBORED;
+                cell.el.classList.add(`${style_status.PINNED}`);
             }
         }
-        else {
-            checkWinState();
+        if (checkWinState(grid)) {
+            document.querySelector('.game-win-text').textContent = GAME_WIN_STATE;
+            document.querySelector('.game-win').style.display = 'flex';
+            document.querySelector('.replay-win').addEventListener('click', function () { startGame(); });
         }
+
     }
 
-    function revealCell(cell) {
-        cell.el.classList.add(cell.state);
-        cell.el.querySelector('.bomb-count').style.display = "flex";
-        REVEALED_CELLS += 1;
+    function revealCell(grid, cell) {
+        if (cell.state === style_status.BOMB) {
+            gameOver(grid);
+        }
+
+        if (cell.state !== style_status.HIDDEN) {
+            return;
+        }
+
+        cell.state = style_status.NEIGHBORED;
+        const neighbours = findNeighbourCells(grid, cell, GRID_COUNT);
+        if (cell.beeCount === 0) {
+            cell.el.classList.add(`${style_status.EMPTY}`)
+            neighbours.forEach(revealCell.bind(null, grid));
+
+        } else if (cell.beeCount > 0) {
+            cell.el.classList.add(`${style_status.NEIGHBORED}`)
+            cell.el.querySelector('.bomb-count').style.display = "flex";
+        }
+
+        if (checkWinState(grid)) {
+            document.querySelector('.game-win-text').textContent = GAME_WIN_STATE;
+            document.querySelector('.game-win').style.display = 'flex';
+            document.querySelector('.replay').addEventListener('click', function () { startGame(); });
+        }
+
     }
 
-    function gameOver(flatGrid) {
-        START_GAME = false;
+    function gameOver(grid) {
         document.querySelector('.game-state-text').textContent = GAME_OVER_STATE;
         document.querySelector('.game-state').style.display = 'flex';
         emoji.style.backgroundImage = "url('src/img/dizzy.png')";
+        const flatGrid = grid.flat();
         flatGrid.forEach((cell) => {
-            //reveal all cells 
-            cell.el.classList.add(cell.state);
-            cell.el.querySelector('.bomb-count').style.display = 'flex';
+
+            if (cell.beeCount > 0) {
+                cell.el.classList.add(`${style_status.NEIGHBORED}`)
+                cell.el.querySelector('.bomb-count').style.display = 'flex';
+            }
             if (cell.state === style_status.BOMB) {
                 cell.el.querySelector('.bee').style.display = 'inline-block';
             }
             //remove all eventlisteners on cells
             cell.el.replaceWith(cell.el.cloneNode(true));
         });
-        document.querySelector('.replay').addEventListener('click', function () { START_GAME = true; startGame(); });
+        document.querySelector('.replay').addEventListener('click', function () { startGame(); });
     }
 
-    function checkWinState() {
-        if (PINNED_CELLS + REVEALED_CELLS >= GRID_COUNT * GRID_COUNT) {
-            START_GAME = false;
-            document.querySelector('.game-win-text').textContent = GAME_WIN_STATE;
-            document.querySelector('.game-win').style.display = 'flex';
-            emoji.style.backgroundImage = "url('src/img/partying.png')";
-            console.log(emoji)
-            document.querySelector('.game-win').querySelector('.replay').addEventListener('click', function () { START_GAME = true; startGame(); });
-        }
+
+
+    function checkWinState(grid) {
+        return grid.every(column => column.every(cell => {
+            return (cell.state === style_status.NEIGHBORED) ||
+                (cell.state === style_status.BOMB && (cell.isPinned === true))
+        }));
     }
 
     //first step: make a grid of cells 
-    function makeGrid(size) {
+    function makeGrid(size, bees) {
         grid = new Array()
         gridEl = document.querySelector('.grid');
         for (let i = 0; i < size; i++) {
@@ -153,7 +151,7 @@ window.onload = function () {
                     el,
                     x: i,
                     y: j,
-                    isBee: false,
+                    beeCount: 0,
                     state: style_status.HIDDEN,
                     isPinned: false
                 }
@@ -161,22 +159,25 @@ window.onload = function () {
             }
             grid.push(column);
         }
-        return grid;
-    };
+        const grid_with_bees = mapBees(grid, bees, size);
+
+        return grid_with_bees;
+    }
 
     function mapBees(grid, beeCount, size) {
         randomArr = generateRandom(beeCount, size)
         grid.forEach(column => column.forEach(function (cell) {
             randomArr.forEach(function (random) {
                 if (checkNumberMatch(cell, random)) {
-                    cell.isBee = true;
                     cell.state = style_status.BOMB;
+                    cell.el.classList.add(cell.state);
                     span = document.createElement('span');
                     span.setAttribute('class', 'bee');
                     cell.el.appendChild(span);
                 }
             });
         }));
+
         return grid;
     }
 
@@ -223,25 +224,18 @@ window.onload = function () {
         return nbrCells;
     }
 
-    function checkCellState(grid, cell, count) {
-        neighbours = findNeighbourCells(grid, cell, count);
-        let bombCount = 0;
+    function checkCellState(grid, cell, size) {
+
+        neighbours = findNeighbourCells(grid, cell, size);
         neighbours.forEach((nbr) => {
-            if (nbr.state === 'bomb') {
-                bombCount += 1;
+            if (nbr.state === style_status.BOMB) {
+                cell.beeCount += 1;
             }
         });
-        if (cell.state !== 'bomb') {
-            if (bombCount > 0) {
-                cell.state = style_status.NEIGHBORED;
-                span = cell.el.childNodes[0];
-                span.textContent = bombCount.toString();
-            }
-            else if (bombCount === 0) {
-                cell.state = style_status.EMPTY;
-            }
+        if (cell.beeCount > 0 && cell.state !== style_status.BOMB) {
+            span = cell.el.childNodes[0];
+            span.textContent = cell.beeCount.toString();
         }
-        return bombCount;
     }
 
     //function to see if numbers match with generated numbers 
