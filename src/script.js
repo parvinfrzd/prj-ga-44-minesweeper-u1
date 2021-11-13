@@ -8,6 +8,7 @@ let START_GAME = true;
 let PIN_COUNT;
 let REVEALED_CELLS = 0;
 let PINNED_CELLS = 0;
+
 const style_status = {
     PINNED: 'pinned',
     EMPTY: 'empty',
@@ -25,6 +26,8 @@ window.onload = function () {
     startGame();
     settingHandler();
 
+
+    //initial state of the game
     function init() {
         document.querySelector('.setting').style.display = 'flex'
         //make grid empty
@@ -38,6 +41,33 @@ window.onload = function () {
         REVEALED_CELLS = 0;
         PINNED_CELLS = 0;
 
+    }
+    //the player can't lose on first move, hence, we reveal the first cell on game start
+    function revealFirstCell(size, grid) {
+        const index = {
+            x: Math.floor(Math.random() * size),
+            y: Math.floor(Math.random() * size)
+        }
+        console.log(index)
+        grid.forEach(column => column.forEach(function (cell) {
+            if (checkNumberMatch(cell, index)) {
+                if (cell.state !== style_status.BOMB) {
+                    checkCellState(grid, cell, size);
+                    cell.state = style_status.NEIGHBORED;
+                    if (cell.beeCount > 0) {
+                        cell.el.classList.add(`${style_status.NEIGHBORED}`)
+                        cell.el.querySelector('.bomb-count').style.display = "flex";
+                    }
+                    else {
+                        cell.el.classList.add(`${style_status.EMPTY}`)
+                    }
+                }
+                else if (cell.state === style_status.BOMB) {
+                    console.log('is a bomb');
+                    revealFirstCell.bind(null, grid);
+                }
+            }
+        }));
     }
 
     function startGame() {
@@ -56,14 +86,17 @@ window.onload = function () {
         }));
     }
 
-
+    //when right click on cell
     function pinCell(grid, cell) {
-        if (PIN_COUNT > 0) {
-            if (!cell.isPinned) {
-                cell.isPinned = true;
-                cell.state = style_status.NEIGHBORED;
-                cell.el.classList.add(`${style_status.PINNED}`);
-            }
+        if (!cell.isPinned) {
+            cell.isPinned = true;
+            cell.state = style_status.NEIGHBORED;
+            cell.el.classList.add(`${style_status.PINNED}`);
+        }
+        else {
+            cell.isPinned = false;
+            cell.state = style_status.HIDDEN;
+            cell.el.classList.remove(`${style_status.PINNED}`);
         }
         if (checkWinState(grid)) {
             document.querySelector('.game-win-text').textContent = GAME_WIN_STATE;
@@ -72,7 +105,7 @@ window.onload = function () {
         }
 
     }
-
+    //when left click on cell
     function revealCell(grid, cell) {
         if (cell.state === style_status.BOMB) {
             gameOver(grid);
@@ -100,7 +133,7 @@ window.onload = function () {
         }
 
     }
-
+    //when game is over, remove all event listeners and reaveal all cells
     function gameOver(grid) {
         document.querySelector('.game-state-text').textContent = GAME_OVER_STATE;
         document.querySelector('.game-state').style.display = 'flex';
@@ -122,7 +155,8 @@ window.onload = function () {
     }
 
 
-
+    //if all of  the cells are reavealed OR all cells that are bees ARE ALSO pinned > then the player wins
+    //this state is checked after each right and left click
     function checkWinState(grid) {
         return grid.every(column => column.every(cell => {
             return (cell.state === style_status.NEIGHBORED) ||
@@ -160,10 +194,12 @@ window.onload = function () {
             grid.push(column);
         }
         const grid_with_bees = mapBees(grid, bees, size);
+        revealFirstCell(size, grid_with_bees);
 
         return grid_with_bees;
     }
 
+    //generate random positions and assign them to matching cells 
     function mapBees(grid, beeCount, size) {
         randomArr = generateRandom(beeCount, size)
         grid.forEach(column => column.forEach(function (cell) {
@@ -194,7 +230,7 @@ window.onload = function () {
         }
         return generatedNumbers;
     }
-
+    //find neighbours to each cell
     function findNeighbourCells(grid, cell, size) {
         neighbours = [
             { x: cell.x + 1, y: cell.y + 1 },
@@ -242,7 +278,7 @@ window.onload = function () {
     function checkNumberMatch(a, b) {
         return a.x === b.x && a.y === b.y;
     }
-
+    //change the emoji when hover over grid
     function changeEmoji(cell) {
         cell.el.addEventListener('mouseenter', function () {
             emoji.style.backgroundImage = "url('src/img/worried.png')"
@@ -260,8 +296,10 @@ window.onload = function () {
             GRID_COUNT = document.getElementById('size').value;
             BEE_COUNT = document.getElementById('bees').value;
             document.querySelector('.grid').style.setProperty('grid-template-columns', `repeat(${GRID_COUNT}, auto)`);
+            document.querySelector('.bee-count').textContent = BEE_COUNT;
             startGame();
             document.querySelector('.setting').style.display = 'none';
+
         });
     }
 }
